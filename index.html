@@ -491,6 +491,33 @@
             }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 });
         }
 
+        async function syncManualLocation() {
+            const input = document.getElementById('manualLocationInput').value;
+            const status = document.getElementById('statusMessage');
+            if (!input) {
+                status.innerText = "Please enter a location name.";
+                return;
+            }
+
+            status.innerText = `Searching for "${input}"...`;
+            try {
+                // Using Nominatim Search API (HTTPS)
+                const searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(input)}&format=json&limit=1`;
+                const response = await fetch(searchUrl, { headers: { 'Accept': 'application/json' } });
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    await compileCoordinates(lat, lon);
+                } else {
+                    status.innerText = "Location not found. Try a broader search.";
+                }
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Search failed. Check connection.";
+            }
+        }
         function scrubVedicHydrology(name, type) {
             if (!name || name === "Sthala") return "Sthala";
 
