@@ -304,32 +304,46 @@
         
         // 2. Switched Overpass to secure HTTPS interpretation engine
         const overpassUrl = "https://overpass-api.de/api/interpreter";
-        const queryQL = `[out:json][timeout:15];(node["waterway"="river"](around:15000,${lat},${lon});node["natural"="peak"](around:15000,${lat},${lon}););out tags;`;
+        const queryQL = `
+        [out:json][timeout:15];
+        (
+          nwr["waterway"="river"](around:15000,${lat},${lon});
+          nwr["natural"="peak"](around:15000,${lat},${lon});
+        );
+        out tags;
+        `;
         
         const overpassResponse = await fetch(overpassUrl, {
             method: 'POST',
-            body: 'data=' + encodeURIComponent(queryQL)
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `data=${encodeURIComponent(queryQL)}`
         });
         const overpassData = await overpassResponse.json();
 
-        let intermediateRiver = "Sthala";
-        let intermediateMountain = "Sthala";
+        let cleanRiver = "Sthala";
+        let cleanMountain = "Sthala";
 
         if (overpassData && overpassData.elements) {
             for (let el of overpassData.elements) {
-                if (el.tags) {
-                    if (el.tags.waterway === "river" && intermediateRiver === "Sthala") {
-                        intermediateRiver = el.tags.name || "Sthala";
+                if (el.tags && el.tags.name) {
+                    const nameCandidate = el.tags.name;
+                    if (/point|unnamed|river|peak/i.test(nameCandidate)) continue;
+                    if (el.tags.waterway === "river") {
+                        if (cleanRiver === "Sthala" || nameCandidate.length < cleanRiver.length) {
+                            cleanRiver = sanitize(nameCandidate);
+                        }
                     }
-                    if (el.tags.natural === "peak" && intermediateMountain === "Sthala") {
-                        intermediateMountain = el.tags.name || "Sthala";
+                    if (el.tags.natural === "peak") {
+                        if (cleanMountain === "Sthala" || nameCandidate.length < cleanMountain.length) {
+                            cleanMountain = sanitize(nameCandidate);
+                        }
                     }
                 }
             }
         }
 
-        let cleanRiver = sanitize(intermediateRiver);
-        let cleanMountain = sanitize(intermediateMountain);
         let cleanSettlement = sanitize(settlement);
 
         if (cleanSettlement.toLowerCase() === "bengaluru" || cleanSettlement.toLowerCase() === "bangalore") {
