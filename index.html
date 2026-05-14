@@ -290,7 +290,7 @@
         const status = document.getElementById('statusMessage');
         
         // 1. Enforced SSL HTTPS path configuration mapping
-        const reverseUrl = `openstreetmap.org{lat}&lon=${lon}&format=json&addressdetails=1`;
+        const reverseUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`;
         const reverseResponse = await fetch(reverseUrl, { headers: { 'Accept': 'application/json' } });
         const reverseData = await reverseResponse.json();
         
@@ -391,7 +391,7 @@
 
         try {
             // 3. Rectified structural Nominatim Search endpoint syntax with complete HTTPS scheme
-            const searchUrl = `openstreetmap.org{encodeURIComponent(query)}&format=json&addressdetails=1&limit=1`;
+            const searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=1`;
             const response = await fetch(searchUrl, { headers: { 'Accept': 'application/json' } });
             const data = await response.json();
 
