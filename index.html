@@ -214,7 +214,7 @@
 
     <!-- Panel 1: Online Query Override -->
     <div class="panel-box">
-        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; font-weight:600;">OPTION A: Online Search Fetch</div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; font-weight:600;">Online Search Fetch</div>
         <input type="text" id="manualLocationInput" placeholder="Enter City, Town or Obscure Village Name">
         <button class="btn" style="background-color:#3a3a45; padding:6px 12px; font-size:0.85rem;" onclick="syncManualLocation()">🔍 Execute API Query</button>
     </div>
@@ -243,7 +243,7 @@
         <div class="form-row">
             <div class="form-group">
                 <label class="input-label" for="offMountain">Mountain (Giri)</label>
-                <input type="text" id="offMountain" value="NandiVaraha" oninput="handleOfflineChange()">
+                <input type="text" id="offMountain" value="NandiVaraha" oninput="()">
             </div>
             <div class="form-group">
                 <label class="input-label" for="offRiver">River (Nadi)</label>
@@ -360,12 +360,12 @@
             isVillage: isVillageFlag
         };
 
-        document.getElementById('offCountry').value = geoState.country.toLowerCase() === "india" ? "India" : "Global";
-        document.getElementById('offState').value = geoState.state;
-        document.getElementById('offCity').value = geoState.settlement;
-        document.getElementById('offMountain').value = geoState.mountain;
-        document.getElementById('offRiver').value = geoState.river;
-        document.getElementById('offType').value = geoState.isVillage ? "Grame" : "Nagare";
+        // document.getElementById('offCountry').value = geoState.country.toLowerCase() === "india" ? "India" : "Global";
+        // document.getElementById('offState').value = geoState.state;
+        // document.getElementById('offCity').value = geoState.settlement;
+        // document.getElementById('offMountain').value = geoState.mountain;
+        // document.getElementById('offRiver').value = geoState.river;
+        // document.getElementById('offType').value = geoState.isVillage ? "Grame" : "Nagare";
 
         status.innerText = "Coordinates synced. Liturgical stream loaded.";
         updateSankalpaUI();
@@ -417,7 +417,7 @@
             }
         } catch (err) {
             console.error(err);
-            status.innerText = "API transmission drop. Network path blocked. Use Option B for complete offline setup.";
+            status.innerText = "API transmission drop. Network path blocked. Use Online Search Fetch.";
         }
     }
 
