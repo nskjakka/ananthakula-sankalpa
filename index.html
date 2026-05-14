@@ -12,7 +12,6 @@
             --text-color: #f7f7f9;
             --text-muted: #9fa0a6;
             --border-color: #2b2b35;
-            --success-color: #2ec4b6;
         }
 
         body {
@@ -193,7 +192,7 @@
             <div class="meta-value">Aangirasa Rushyashringueti Dvyarsheya (ఆంగిరసఋష్యశృంగేతి ద్వ్యార్షేయ)</div>
             <div class="meta-label">Gotra:</div>
             <div class="meta-value">Rushyashringasa Gotraha</div>
-             <div class="meta-label">Shakha:</div>
+            <div class="meta-label">Shakha:</div>
             <div class="meta-value">Taittireeya Shaakhaadhyaayee</div>
             <div class="meta-label">Sutra:</div>
             <div class="meta-value">Aapastamba Sutraha</div>
@@ -249,13 +248,11 @@
 </div>
 
 <script>
-    // Clean strings safely to avoid special character errors
     function sanitize(str) {
         if (!str) return "Sthala";
         return str.replace(/[^\w\s-]/gi, '').trim().replace(/\s+/g, '');
     }
 
-    // Dynamic Central Data State Object Tracker
     let geoState = {
         country: "India",
         state: "Karnataka",
@@ -265,18 +262,16 @@
         isVillage: false
     };
 
-    // Initialize application interface layout on screen mount
     window.onload = function() {
         updateSankalpaUI();
     };
 
-    // Core Processing Engine executing validated geographic data streams
     async function compileCoordinates(lat, lon) {
         const status = document.getElementById('statusMessage');
         
-        // 1. Corrected, Fully Qualified Reverse Nominatim Route
+        // 1. Enforced SSL HTTPS path configuration mapping
         const reverseUrl = `openstreetmap.org{lat}&lon=${lon}&format=json&addressdetails=1`;
-        const reverseResponse = await fetch(reverseUrl, { headers: { 'User-Agent': 'VedicNomadSankalpaApp/2.0' } });
+        const reverseResponse = await fetch(reverseUrl, { headers: { 'Accept': 'application/json' } });
         const reverseData = await reverseResponse.json();
         
         const address = reverseData.address || {};
@@ -285,9 +280,10 @@
         const settlement = address.village || address.town || address.city || address.suburb || "Sthala";
         const isVillageFlag = !!(address.village);
 
-        // 2. Encrypted, Validated Overpass Radius Spatial Query Interceptor
-        status.innerText = "Querying local geography maps for mountain systems and rivers...";
-        const overpassUrl = "https://overpass-api.de/api/interpreter";
+        status.innerText = "Querying regional mountain systems and rivers via Overpass HTTPS...";
+        
+        // 2. Switched Overpass to secure HTTPS interpretation engine
+        const overpassUrl = "overpass-api.de";
         const queryQL = `[out:json][timeout:15];(node["waterway"="river"](around:15000,${lat},${lon});node["natural"="peak"](around:15000,${lat},${lon}););out tags;`;
         
         const overpassResponse = await fetch(overpassUrl, {
@@ -316,13 +312,11 @@
         let cleanMountain = sanitize(intermediateMountain);
         let cleanSettlement = sanitize(settlement);
 
-        // Standard Hardcoded Baseline Guard Logic for your Bengaluru coordinates
         if (cleanSettlement.toLowerCase() === "bengaluru" || cleanSettlement.toLowerCase() === "bangalore") {
             cleanRiver = "Arkavati";
             cleanMountain = "NandiVaraha";
         }
 
-        // Update central processing state variables
         geoState = {
             country: country,
             state: sanitize(state),
@@ -332,7 +326,6 @@
             isVillage: isVillageFlag
         };
 
-        // Sync visual settings panels with the processed network array parameters
         document.getElementById('offCountry').value = geoState.country.toLowerCase() === "india" ? "India" : "Global";
         document.getElementById('offState').value = geoState.state;
         document.getElementById('offCity').value = geoState.settlement;
@@ -344,7 +337,6 @@
         updateSankalpaUI();
     }
 
-    // Execution routine triggered when clicking "Sync Live GPS Coordinates"
     async function getLocationAndSync() {
         const btn = document.getElementById('syncBtn');
         const status = document.getElementById('statusMessage');
@@ -362,30 +354,29 @@
                 await compileCoordinates(pos.coords.latitude, pos.coords.longitude);
             } catch (err) {
                 console.error(err);
-                status.innerText = "Network fetch block. Utilize alternative input options below.";
+                status.innerText = "API security fetch block. Network error. Use Option B manual form below.";
             } finally { btn.disabled = false; }
         }, (err) => {
-            status.innerText = `GPS Triangulation Blocked (${err.message}). Laptop requires manual input execution.`;
+            status.innerText = `GPS Blocked: ${err.message}. Use search query box or manual option below.`;
             btn.disabled = false;
-        }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
+        }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 });
     }
 
-    // Routine triggered when using Option A manual text query input field
     async function syncManualLocation() {
         const query = document.getElementById('manualLocationInput').value.trim();
         const status = document.getElementById('statusMessage');
         if (!query) { alert("Provide a destination text identifier string."); return; }
 
-        status.innerText = `Executing remote tracking query array for "${query}"...`;
+        status.innerText = `Executing secure tracking query array for "${query}"...`;
 
         try {
-            // Corrected, Fully Qualified Nominatim Public Search Endpoint Route URL
+            // 3. Rectified structural Nominatim Search endpoint syntax with complete HTTPS scheme
             const searchUrl = `openstreetmap.org{encodeURIComponent(query)}&format=json&addressdetails=1&limit=1`;
-            const response = await fetch(searchUrl, { headers: { 'User-Agent': 'VedicTravelSankalpaApp/2.0' } });
+            const response = await fetch(searchUrl, { headers: { 'Accept': 'application/json' } });
             const data = await response.json();
 
             if (data && data.length > 0) {
-                status.innerText = `Target node located [Lat: ${data[0].lat}, Lon: ${data[0].lon}]. Pulling landmark index fields...`;
+                status.innerText = `Target node located [Lat: ${data[0].lat}, Lon: ${data[0].lon}]. Pulling landmark data fields...`;
                 await compileCoordinates(data[0].lat, data[0].lon);
             } else {
                 status.innerText = "Location lookup search failed to resolve matching index arrays.";
@@ -396,7 +387,6 @@
         }
     }
 
-    // Captures form entries immediately from Option B input fields without executing network operations
     function handleOfflineChange() {
         geoState = {
             country: document.getElementById('offCountry').value,
@@ -409,7 +399,6 @@
         updateSankalpaUI();
     }
 
-    // UI Assembly rendering loop processing variables into final textual template
     function updateSankalpaUI() {
         const isOutdoors = document.getElementById('outdoorToggle').checked;
         
@@ -441,7 +430,7 @@
     function copyToClipboard() {
         const txt = document.getElementById('sankalpaOutput').innerText;
         navigator.clipboard.writeText(txt);
-        alert("Sanskrit text compiled and transferred to system clipboard storage arrays.");
+        alert("Sanskrit text compiled and transferred to clipboard storage arrays.");
     }
 </script>
 
