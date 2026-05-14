@@ -1,2 +1,2 @@
 # anathakula-sankalpa
-Sankalpa Engine with Anantakula Lineage Liturgical Utility
+Sankalpa Context Engine for Anantakula Lineage Liturgical Utility and World Travel Sankalpa

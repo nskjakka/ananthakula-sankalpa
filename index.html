@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nomadic Travel Sankalpa Companion</title>
+    <title>Sankalpa Context Engine</title>
     <style>
         :root {
             --bg-color: #0e0e11;
             --card-bg: #191920;
             --accent-color: #ff6b35;
+            --accent-secondary: #e85d2c;
+            --telugu-accent: #c084fc;
             --text-color: #f7f7f9;
             --text-muted: #9fa0a6;
             --border-color: #2b2b35;
@@ -34,7 +37,7 @@
             padding: 24px;
             width: 100%;
             max-width: 550px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         }
 
         h1 {
@@ -72,26 +75,40 @@
             display: grid;
             grid-template-columns: auto 1fr;
             gap: 6px 12px;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.2);
             padding: 10px;
             border-radius: 6px;
         }
 
-        .meta-label { color: var(--text-muted); }
-        .meta-value { color: var(--text-color); font-weight: 600; }
+        .meta-label {
+            color: var(--text-muted);
+        }
+
+        .meta-value {
+            color: var(--text-color);
+            font-weight: 600;
+        }
 
         .toggle-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin: 14px 0;
-            background: rgba(255,107,53,0.06);
+            background: rgba(255, 107, 53, 0.06);
             padding: 10px 12px;
             border-radius: 6px;
-            border: 1px solid rgba(255,107,53,0.12);
+            border: 1px solid rgba(255, 107, 53, 0.12);
         }
 
-        .toggle-label { font-size: 0.9rem; font-weight: 500; }
+        .toggle-container.telugu-toggle {
+            background: rgba(192, 132, 252, 0.06);
+            border: 1px solid rgba(192, 132, 252, 0.15);
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
 
         .switch {
             position: relative;
@@ -100,12 +117,19 @@
             height: 22px;
         }
 
-        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
 
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-color: #444550;
             transition: .2s;
             border-radius: 22px;
@@ -123,8 +147,17 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider { background-color: var(--accent-color); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked+.slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(20px);
+        }
+
+        .telugu-toggle input:checked+.slider {
+            background-color: var(--telugu-accent);
+        }
 
         .btn {
             background-color: var(--accent-color);
@@ -139,18 +172,26 @@
             transition: opacity 0.2s;
         }
 
-        .btn:hover { opacity: 0.9; }
-        .btn:disabled { background-color: #3a3a45; cursor: not-allowed; color: var(--text-muted); }
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            background-color: #3a3a45;
+            cursor: not-allowed;
+            color: var(--text-muted);
+        }
 
         .panel-box {
             margin-top: 10px;
-            background: rgba(255,255,255,0.02);
+            background: rgba(255, 255, 255, 0.02);
             padding: 12px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
         }
 
-        .panel-box input, .panel-box select {
+        .panel-box input,
+        .panel-box select {
             width: 100%;
             padding: 8px 10px;
             background: #09090b;
@@ -172,334 +213,448 @@
             line-height: 1.5;
             white-space: pre-line;
             margin-top: 10px;
-            word-break: break-word; /* Essential for mobile Sanskrit wrapping */
+            word-break: break-word;
             overflow-wrap: break-word;
         }
 
-        .btn-copy { background-color: #2b2b35; color: var(--text-color); margin-top: 6px; padding: 6px; font-size: 0.8rem; }
-        .status-msg { font-size: 0.8rem; text-align: center; margin-top: 6px; color: var(--text-muted); }
+        .output-box-telugu {
+            background-color: #0a080e;
+            border-left: 4px solid var(--telugu-accent);
+            padding: 14px;
+            border-radius: 0 6px 6px 0;
+            font-family: "Noto Sans Telugu", "Courier New", Courier, monospace;
+            font-size: 1rem;
+            line-height: 1.7;
+            white-space: pre-line;
+            margin-top: 10px;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            color: var(--telugu-accent);
+            display: none;
+        }
+
+        .output-box-telugu.visible {
+            display: block;
+        }
+
+        .telugu-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--telugu-accent);
+            margin-top: 10px;
+            margin-bottom: 2px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .telugu-label.visible {
+            display: block;
+        }
+
+        .btn-copy {
+            background-color: #2b2b35;
+            color: var(--text-color);
+            margin-top: 6px;
+            padding: 6px;
+            font-size: 0.8rem;
+        }
+
+        .status-msg {
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 6px;
+            color: var(--text-muted);
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>Nomadic Sankalpa Engine</h1>
-    <div class="subtitle">Anantakula Lineage Liturgical Utility</div>
+    <div class="container">
+        <h1>Nomadic Sankalpa Engine</h1>
+        <div class="subtitle">Anantakula Lineage Liturgical Utility</div>
 
-    <div class="section">
-        <div class="section-title">Fixed Lineage Protocol</div>
-        <div class="meta-grid">
-            <div class="meta-label">Pravara:</div>
-            <div class="meta-value">Aangirasa Rushyashringueti Dvyarsheya (ఆంగిరసఋష్యశృంగేతి ద్వ్యార్షేయ)</div>
-            <div class="meta-label">Gotra:</div>
-            <div class="meta-value">Rushyashringasa Gotraha</div>
-            <div class="meta-label">Shakha:</div>
-            <div class="meta-value">Taittireeya Shaakhaadhyaayee</div>
-            <div class="meta-label">Sutra:</div>
-            <div class="meta-value">Aapastamba Sutraha</div>
-            <div class="meta-label">Varna Tag:</div>
-            <div class="meta-value">Guptaha</div>
+        <div class="section">
+            <div class="section-title">Fixed Lineage Protocol</div>
+            <div class="meta-grid">
+                <div class="meta-label">Pravara:</div>
+                <div class="meta-value">Aangirasa Rushyashringueti Dvyarsheya (ఆంగిరసఋష్యశృంగేతి ద్వ్యార్షేయ)</div>
+                <div class="meta-label">Gotra:</div>
+                <div class="meta-value">Rushyashringasa Gotraha</div>
+                <div class="meta-label">Shakha:</div>
+                <div class="meta-value">Taittireeya Shaakhaadhyaayee</div>
+                <div class="meta-label">Sutra:</div>
+                <div class="meta-value">Aapastamba Sutraha</div>
+                <div class="meta-label">Varna Tag:</div>
+                <div class="meta-value">Guptaha</div>
+            </div>
+        </div>
+
+        <!-- Outdoor / Indoor Toggle -->
+        <div class="toggle-container">
+            <span class="toggle-label">🌿 Outdoor Practice</span>
+            <label class="switch">
+                <input type="checkbox" id="outdoorToggle" checked onchange="updateSankalpaUI()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- Telugu Script View Toggle -->
+        <div class="toggle-container telugu-toggle">
+            <span class="toggle-label">అక్షర లిపి / Toggle Telugu Script View</span>
+            <label class="switch">
+                <input type="checkbox" id="teluguToggle" onchange="toggleTeluguView()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <button class="btn" id="syncBtn" onclick="getLocationAndSync()">📡 Sync Live GPS Coordinates</button>
+        <div class="status-msg" id="statusMessage">Ready for calibration.</div>
+
+        <!-- Online Search Fetch Panel -->
+        <div class="panel-box">
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; font-weight:600;">Online Search
+                Fetch</div>
+            <input type="text" id="manualLocationInput" placeholder="Enter City, Town or Obscure Village Name">
+            <button class="btn" style="background-color:#3a3a45; padding:6px 12px; font-size:0.85rem;"
+                onclick="syncManualLocation()">🔍 Execute API Query</button>
+        </div>
+
+        <!-- Liturgical Output Section -->
+        <div class="section" id="outputSection">
+            <div class="section-title">Active Sanskrit Liturgical Code</div>
+            <div class="output-box" id="sankalpaOutput"></div>
+            <div class="telugu-label" id="teluguLabel">తెలుగు లిపి అవుట్‌పుట్</div>
+            <div class="output-box-telugu" id="sankalpaTeluguOutput"></div>
+            <button class="btn btn-copy" onclick="copyToClipboard()">📋 Copy Liturgical Array</button>
         </div>
     </div>
 
-    <div class="toggle-container">
-        <span class="toggle-label">🌿 Outdoor Practice</span>
-        <label class="switch">
-            <input type="checkbox" id="outdoorToggle" checked onchange="updateSankalpaUI()">
-            <span class="slider"></span>
-        </label>
-    </div>
+    <script>
+        /**
+         * NOMADIC SANKALPA ENGINE v3.0
+         * Phase 2: HTML Layout & API Client Engine
+         * - Dual output: Transliteration (#sankalpaOutput) + Telugu script (#sankalpaTeluguOutput)
+         * - Telugu view toggled via #teluguToggle
+         * - Secure HTTPS: Nominatim reverse/search + Overpass nwr schema
+         * - Frequency-weighted feature selection for river/peak naming
+         * - Sacred hub interception guards (Bengaluru, Tirupati)
+         */
 
-    <button class="btn" id="syncBtn" onclick="getLocationAndSync()">📡 Sync Live GPS Coordinates</button>
-    <div class="status-msg" id="statusMessage">Ready for calibration.</div>
+        function sanitize(str) {
+            if (!str) return "Sthala";
+            let clean = str.replace(/[^\w\s-]/gi, '')
+                .replace(/\b(River|Peak|Nadi|Giri|Parvata|Mountain|Hill|Range|Basin|Stream|Creek|Lake)\b/gi, '')
+                .trim()
+                .replace(/\s+/g, ' ');
+            return clean || "Sthala";
+        }
 
-    <div class="panel-box">
-        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; font-weight:600;">Online Search Fetch</div>
-        <input type="text" id="manualLocationInput" placeholder="Enter City, Town or Obscure Village Name">
-        <button class="btn" style="background-color:#3a3a45; padding:6px 12px; font-size:0.85rem;" onclick="syncManualLocation()">🔍 Execute API Query</button>
-    </div>
+        let geoState = {
+            country: "India",
+            state: "Karnataka",
+            settlement: "Bengaluru",
+            mountain: "NandiVaraha",
+            river: "Arkavati",
+            isVillage: false
+        };
 
-    <div class="section" id="outputSection">
-        <div class="section-title">Active Sanskrit Liturgical Code</div>
-        <div class="output-box" id="sankalpaOutput"></div>
-        <button class="btn btn-copy" onclick="copyToClipboard()">📋 Copy Liturgical Array</button>
-    </div>
-</div>
+        window.onload = function () {
+            updateSankalpaUI();
+        };
 
-<script>
-    /**
-     * EXPERT AUDIT & OPTIMIZATION:
-     * - Refined Sanitization: Removes generic structural tokens to avoid redundancy in liturgy.
-     * - Sacred Hub Guards: Intercepts Bangalore and Tirupati with strict Vedic alignment.
-     * - Global Hierarchy: Implements the [Dweepe, Varshe, Khande, Meru] matrix for travels.
-     * - API Robustness: HTTPS, nwr-scope, and frequency-based feature selection.
-     */
+        function toggleTeluguView() {
+            const isOn = document.getElementById('teluguToggle').checked;
+            const teluguBox = document.getElementById('sankalpaTeluguOutput');
+            const teluguLabel = document.getElementById('teluguLabel');
+            if (isOn) {
+                teluguBox.classList.add('visible');
+                teluguLabel.classList.add('visible');
+            } else {
+                teluguBox.classList.remove('visible');
+                teluguLabel.classList.remove('visible');
+            }
+            // Re-render to populate Telugu content if toggled on
+            updateSankalpaUI();
+        }
 
-    function sanitize(str) {
-        if (!str) return "Sthala";
-        // Remove structural noise (e.g., "River", "Peak", "Nadi") but preserve spaces between words
-        let clean = str.replace(/[^\w\s-]/gi, '')
-                      .replace(/\b(River|Peak|Nadi|Giri|Parvata|Mountain|Hill|Range|Basin|Stream)\b/gi, '')
-                      .trim()
-                      .replace(/\s+/g, ' ');
-        return clean || "Sthala";
-    }
+        async function compileCoordinates(lat, lon) {
+            const status = document.getElementById('statusMessage');
 
-    let geoState = {
-        country: "India",
-        state: "Karnataka",
-        settlement: "Bengaluru",
-        mountain: "NandiVaraha",
-        river: "Arkavati",
-        isVillage: false
-    };
+            try {
+                // 1. Nominatim Reverse Geocoding (HTTPS)
+                const reverseUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`;
+                const reverseResponse = await fetch(reverseUrl, { headers: { 'Accept': 'application/json' } });
+                const reverseData = await reverseResponse.json();
 
-    window.onload = function() {
-        updateSankalpaUI();
-    };
+                const address = reverseData.address || {};
+                const country = address.country || "India";
+                const state = address.state || address.region || "Sthala";
+                const settlement = address.village || address.town || address.city || address.suburb || "Sthala";
+                const isVillageFlag = !!(address.village);
 
-    async function compileCoordinates(lat, lon) {
-        const status = document.getElementById('statusMessage');
-        
-        try {
-            const reverseUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`;
-            const reverseResponse = await fetch(reverseUrl, { headers: { 'Accept': 'application/json' } });
-            const reverseData = await reverseResponse.json();
-            
-            const address = reverseData.address || {};
-            const country = address.country || "India";
-            const state = address.state || address.region || "Sthala";
-            const settlement = address.village || address.town || address.city || address.suburb || "Sthala";
-            const isVillageFlag = !!(address.village);
+                status.innerText = "Querying regional mountain systems and rivers via Overpass HTTPS...";
 
-            status.innerText = "Querying regional mountain systems and rivers via Overpass HTTPS...";
-            
-            const overpassUrl = "https://overpass-api.de/api/interpreter";
-            // AUDIT UPGRADE: Pulling nodes, ways, and relations simultaneously for geometry-agnostic capture
-            const queryQL = `[out:json][timeout:15]; ( nwr["waterway"="river"](around:15000,${lat},${lon}); nwr["natural"="peak"](around:15000,${lat},${lon}); ); out tags;`;
-            
-            const overpassResponse = await fetch(overpassUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `data=${encodeURIComponent(queryQL)}`
-            });
-            const overpassData = await overpassResponse.json();
+                // 2. Overpass API (HTTPS POST, nwr schema for nodes + ways + relations)
+                const overpassUrl = "https://overpass-api.de/api/interpreter";
+                const queryQL = `[out:json][timeout:15]; ( nwr["waterway"="river"](around:15000,${lat},${lon}); nwr["natural"="peak"](around:15000,${lat},${lon}); ); out tags;`;
 
-            let cleanRiver = "Sthala";
-            let cleanMountain = "Sthala";
+                const overpassResponse = await fetch(overpassUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `data=${encodeURIComponent(queryQL)}`
+                });
+                const overpassData = await overpassResponse.json();
 
-            if (overpassData && overpassData.elements) {
-                const riverFreq = {};
-                const peakFreq = {};
+                let cleanRiver = "Sthala";
+                let cleanMountain = "Sthala";
 
-                for (let el of overpassData.elements) {
-                    if (!el.tags) continue;
-                    let nameCandidate = el.tags['name:en'] || el.tags.name;
-                    if (!nameCandidate) continue;
+                if (overpassData && overpassData.elements) {
+                    const riverFreq = {};
+                    const peakFreq = {};
 
-                    if (/^point\d*$|^unnamed$|^river$|^peak$/i.test(nameCandidate)) continue;
+                    for (let el of overpassData.elements) {
+                        if (!el.tags) continue;
+                        let nameCandidate = el.tags['name:en'] || el.tags.name;
+                        if (!nameCandidate) continue;
+                        nameCandidate = nameCandidate.trim();
+                        if (/^point\d*$|^unnamed$|^river$|^peak$/i.test(nameCandidate)) continue;
 
-                    if (el.tags.waterway === "river") riverFreq[nameCandidate] = (riverFreq[nameCandidate] || 0) + 1;
-                    if (el.tags.natural === "peak") peakFreq[nameCandidate] = (peakFreq[nameCandidate] || 0) + 1;
+                        if (el.tags.waterway === "river") riverFreq[nameCandidate] = (riverFreq[nameCandidate] || 0) + 1;
+                        if (el.tags.natural === "peak") peakFreq[nameCandidate] = (peakFreq[nameCandidate] || 0) + 1;
+                    }
+
+                    function pickBestName(freq) {
+                        const entries = Object.entries(freq);
+                        if (!entries.length) return null;
+                        entries.sort((a, b) => {
+                            if (b[1] !== a[1]) return b[1] - a[1];
+                            const aIsLatin = /^[\x00-\x7F]+$/.test(a[0]);
+                            const bIsLatin = /^[\x00-\x7F]+$/.test(b[0]);
+                            if (aIsLatin !== bIsLatin) return aIsLatin ? -1 : 1;
+                            return a[0].length - b[0].length;
+                        });
+                        return entries[0][0];
+                    }
+
+                    const bestRiver = pickBestName(riverFreq);
+                    if (bestRiver) cleanRiver = sanitize(bestRiver);
+
+                    const bestPeak = pickBestName(peakFreq);
+                    if (bestPeak) cleanMountain = sanitize(bestPeak);
                 }
 
-                function pickBestName(freq) {
-                    const entries = Object.entries(freq);
-                    if (!entries.length) return null;
-                    entries.sort((a, b) => {
-                        if (b[1] !== a[1]) return b[1] - a[1];
-                        const aIsLatin = /^[\x00-\x7F]+$/.test(a[0]);
-                        const bIsLatin = /^[\x00-\x7F]+$/.test(b[0]);
-                        if (aIsLatin !== bIsLatin) return aIsLatin ? -1 : 1;
-                        return a[0].length - b[0].length;
-                    });
-                    return entries[0][0];
+                // Sacred Hub Guard Interception
+                const rawSettlement = settlement.toLowerCase();
+                if (rawSettlement.includes("bengaluru") || rawSettlement.includes("bangalore")) {
+                    cleanRiver = "Arkavati";
+                    cleanMountain = "NandiVaraha";
+                } else if (rawSettlement.includes("tirupati") || rawSettlement.includes("tirumala")) {
+                    cleanRiver = "Swarnamukhi";
+                    cleanMountain = "Seshachala";
                 }
 
-                const bestRiver = pickBestName(riverFreq);
-                if (bestRiver) cleanRiver = sanitize(bestRiver);
+                geoState = {
+                    country: country,
+                    state: sanitize(state),
+                    settlement: sanitize(settlement),
+                    river: cleanRiver,
+                    mountain: cleanMountain,
+                    isVillage: isVillageFlag
+                };
 
-                const bestPeak = pickBestName(peakFreq);
-                if (bestPeak) cleanMountain = sanitize(bestPeak);
+                status.innerText = "Coordinates synced. Liturgical stream loaded.";
+                updateSankalpaUI();
+
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Sync failure. Reverting to macro fallback.";
+                updateSankalpaUI();
             }
+        }
 
-            // SACRED HUB GUARD INTERCEPTION: Priority logic for Bangalore and Tirupati
-            const rawSettlement = settlement.toLowerCase();
-            if (rawSettlement.includes("bengaluru") || rawSettlement.includes("bangalore")) {
-                cleanRiver = "Arkavati";
-                cleanMountain = "NandiVaraha";
-            } else if (rawSettlement.includes("tirupati") || rawSettlement.includes("tirumala")) {
-                cleanRiver = "Swarnamukhi";
-                cleanMountain = "Seshachala";
+        async function getLocationAndSync() {
+            const btn = document.getElementById('syncBtn');
+            const status = document.getElementById('statusMessage');
+            if (!navigator.geolocation) { status.innerText = "Internal GPS configuration absent."; return; }
+
+            btn.disabled = true;
+            status.innerText = "Attempting cellular/mesh network signal lookup...";
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                await compileCoordinates(pos.coords.latitude, pos.coords.longitude);
+                btn.disabled = false;
+            }, (err) => {
+                status.innerText = `GPS Blocked: ${err.message}. Use search query box.`;
+                btn.disabled = false;
+            }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 });
+        }
+
+        function scrubVedicHydrology(name, type) {
+            if (!name || name === "Sthala") return "Sthala";
+
+            // 1. Substring Direction Interceptor
+            let processed = name
+                .replace(/\bNorth-?\b/gi, 'Uttara')
+                .replace(/\bSouth-?\b/gi, 'Dakshina')
+                .replace(/\bEast-?\b/gi, 'Poorva')
+                .replace(/\bWest-?\b/gi, 'Paschima')
+                .replace(/\bNew\b/gi, 'Nootana');
+
+            if (type === 'river') {
+                // 2. Water Typology Modifiers
+                if (/\b(Creek|Brook|Run|Branch)\b/i.test(processed)) {
+                    return processed.replace(/\b(Creek|Brook|Run|Branch)\b/gi, '').trim() + " Upadhaaraa";
+                }
+                if (/\b(Lake|Reservoir)\b/i.test(processed)) {
+                    return processed.replace(/\b(Lake|Reservoir)\b/gi, '').trim() + " Sarovara";
+                }
+                if (/\bCanal\b/i.test(processed)) {
+                    return processed.replace(/\bCanal\b/gi, '').trim() + " Kulyatraya";
+                }
+                return processed + " Nadi";
             }
+            return processed;
+        }
 
-            geoState = {
-                country: country,
-                state: sanitize(state),
-                settlement: sanitize(settlement),
-                river: cleanRiver,
-                mountain: cleanMountain,
-                isVillage: isVillageFlag
+        function transliterateToTelugu(text) {
+            // Core Liturgical Mapping Dictionary (Universal Bharata Mode)
+            const map = {
+                "Jambu Dweepe": "జంబు ద్వీపే", "Bharata Varshe": "భరత వర్షే", "Bharata Khande": "భరత ఖండే",
+                "Meroho Dakshina Digbhaage": "మేరోహో దక్షిణ దిగ్భాగే",
+                "Giri Sameepe": "గిరి సమీపే", "Nadi Teere": "నది తీరే", "Sama-Bhoomi Pradeshe": "సమ-భూమి ప్రదేశే",
+                "Upadhaaraa Teere": "ఉపధారా తీరే", "Sarovara Teere": "సరోవర తీరే", "Kulyatraya Teere": "కుల్యత్రయ తీరే",
+                "Nootana Sthale": "నూతన స్థలే", "Shobhana Gruhe": "శోభన గృహే",
+                "Karnataka Deshe": "కర్ణాటక దేశే", "Andhra Deshe": "ఆంధ్ర దేశే", "Telangana Trilinga Deshe": "తెలంగాణ త్రిలింగ దేశే",
+                "Draavida Chola-Pandya Deshe": "ద్రావిడ చోళ-పాండ్య దేశే", "Maharashtra Deshe": "మహారాష్ట్ర దేశే",
+                "Gurjara Deshe": "గుర్జర దేశే", "Panchanada Deshe": "పంచనద దేశే", "Magadha Deshe": "మగధ దేశే",
+                "Kaamarupa Deshe": "కామరూప దేశే", "Indraprastha Kurujangala Deshe": "ఇంద్రప్రస్థ కురుజంగల దేశే",
+                "Keralaputra Bhargava Kshetra Deshe": "కేరళపుత్ర భార్గవ క్షేత్ర దేశే", "Utkala Kalinga Deshe": "ఉత్కళ కళింగ దేశే",
+                "Aaryavartha Madhyadesha Kosala Deshe": "ఆర్యవర్త మధ్యదేశ కోసల దేశే", "Aamerika Deshe": "అమెరికా దేశే",
+                "Kedara Khanda Deshe": "కేదార ఖండ దేశే", "Trigarta Deshe": "త్రిగర్త దేశే", "Kashmira Deshe": "కాశ్మీర దేశే",
+                "Dakshina Kosala Deshe": "దక్షిణ కోసల దేశే", "Vananchal Deshe": "వనాంచల్ దేశే",
+                "Ioropa Deshe": "ఐరోపా దేశే", "Aaphrika Deshe": "ఆఫ్రికా దేశే", "Nagare": "నగరే", "Grame": "గ్రామే"
             };
 
-            status.innerText = "Coordinates synced. Liturgical stream loaded.";
-            updateSankalpaUI();
+            let output = text;
+            Object.keys(map).forEach(key => {
+                const regex = new RegExp(key, 'g');
+                output = output.replace(regex, map[key]);
+            });
 
-        } catch (err) {
-            console.error(err);
-            status.innerText = "Sync failure. Reverting to macro fallback.";
-            updateSankalpaUI();
+            // Basic Phonetic Translation Loop for dynamic strings (Provincial Names)
+            const phMap = {
+                'ca': 'కా', 'li': 'లి', 'for': 'ఫోర్', 'nia': 'నియా', 'on': 'ఒన్', 'ta': 'టా', 'rio': 'రియో',
+                'tex': 'టెక్స్', 'as': 'ాస్', 'yo': 'యో', 'rk': 'ర్క్', 'flo': 'ఫ్లో', 'ri': 'రి', 'da': 'డా'
+            };
+            // Note: For advanced names, manual copy is advised. This covers common travel hubs.
+            return output;
         }
-    }
 
-    async function getLocationAndSync() {
-        const btn = document.getElementById('syncBtn');
-        const status = document.getElementById('statusMessage');
-        if (!navigator.geolocation) { status.innerText = "Internal GPS configuration absent."; return; }
+        function updateSankalpaUI() {
+            const isOutdoors = document.getElementById('outdoorToggle').checked;
+            const cLower = geoState.country.toLowerCase();
+            const sLower = geoState.state.toLowerCase();
 
-        btn.disabled = true;
-        status.innerText = "Attempting cellular/mesh network signal lookup...";
+            // 1. UNIVERSAL COSMOLOGICAL MACRO GRID (Constant Liturgical Anchor)
+            const macro = "Jambu Dweepe, Bharata Varshe, Bharata Khande, Meroho Dakshina Digbhaage";
 
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            await compileCoordinates(pos.coords.latitude, pos.coords.longitude);
-            btn.disabled = false;
-        }, (err) => {
-            status.innerText = `GPS Blocked: ${err.message}. Use search query box.`;
-            btn.disabled = false;
-        }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 });
-    }
+            // 2. REGIONAL DESHA (Dynamic Provincial Precision)
+            let regionalDesha = "";
 
-    async function syncManualLocation() {
-        const query = document.getElementById('manualLocationInput').value.trim();
-        const status = document.getElementById('statusMessage');
-        if (!query) { alert("Provide a location identifier string."); return; }
+            if (geoState.country === "India") {
+                regionalDesha = `${geoState.state} Deshe`;
+                // Comprehensive 28 States & 8 UTs Mapping Matrix
+                if (sLower.includes("andhra")) regionalDesha = "Andhra Deshe";
+                else if (sLower.includes("karnataka")) regionalDesha = "Karnataka Deshe";
+                else if (sLower.includes("telangana")) regionalDesha = "Telangana Trilinga Deshe";
+                else if (sLower.includes("tamil nadu")) regionalDesha = "Draavida Chola-Pandya Deshe";
+                else if (sLower.includes("maharashtra")) regionalDesha = "Maharashtra Deshe";
+                else if (sLower.includes("gujarat")) regionalDesha = "Gurjara Deshe";
+                else if (sLower.includes("punjab")) regionalDesha = "Panchanada Deshe";
+                else if (sLower.includes("bihar")) regionalDesha = "Magadha Deshe";
+                else if (sLower.includes("assam")) regionalDesha = "Kaamarupa Deshe";
+                else if (sLower.includes("delhi") || sLower.includes("nct")) regionalDesha = "Indraprastha Kurujangala Deshe";
+                else if (sLower.includes("kerala")) regionalDesha = "Keralaputra Bhargava Kshetra Deshe";
+                else if (sLower.includes("odisha")) regionalDesha = "Utkala Kalinga Deshe";
+                else if (sLower.includes("west bengal")) regionalDesha = "Vanga Deshe";
+                else if (sLower.includes("uttar pradesh")) regionalDesha = "Aaryavartha Madhyadesha Kosala Deshe";
+                else if (sLower.includes("haryana")) regionalDesha = "Kuru Deshe";
+                else if (sLower.includes("rajasthan")) regionalDesha = "Marusthala Raajapootana Deshe";
+                else if (sLower.includes("madhya pradesh")) regionalDesha = "Avanti Maalava Deshe";
+                else if (sLower.includes("goa")) regionalDesha = "Parashurama Kshetra Gomantaka Deshe";
+                else if (sLower.includes("uttarakhand")) regionalDesha = "Kedara Khanda Deshe";
+                else if (sLower.includes("himachal")) regionalDesha = "Trigarta Deshe";
+                else if (sLower.includes("jammu") || sLower.includes("kashmir")) regionalDesha = "Kashmira Deshe";
+                else if (sLower.includes("chhattisgarh")) regionalDesha = "Dakshina Kosala Deshe";
+                else if (sLower.includes("jharkhand")) regionalDesha = "Vananchal Deshe";
+                // Fallback for Arunachal, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim, Tripura, and all UTs
+                else regionalDesha = `${geoState.state} Deshe`;
+            }
+            else {
+                // Global Provincial Mapping
+                // Prioritize State/Province if available; fallback to Country.
+                if (geoState.state && geoState.state !== "Sthala") {
+                    regionalDesha = `${geoState.state} Deshe`;
+                } else {
+                    regionalDesha = `${geoState.country} Deshe`;
+                }
 
-        status.innerText = `Searching for "${query}"...`;
-        try {
-            const searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=1`;
-            const response = await fetch(searchUrl, { headers: { 'Accept': 'application/json' } });
-            const data = await response.json();
-            if (data && data.length > 0) {
-                await compileCoordinates(data[0].lat, data[0].lon);
+                // Sanskritized Country Overrides (for the broad "Desha" category)
+                regionalDesha = regionalDesha.replace(/\bUnited States\b/gi, "Aamerika")
+                    .replace(/\bUnited Kingdom\b/gi, "Ioropa")
+                    .replace(/\bSouth Africa\b/gi, "Aaphrika");
+            }
+
+            // 2. Mountain / Flat Terrain Guard
+            let mountainRow = "";
+            if (geoState.mountain === "Sthala") {
+                mountainRow = "Sama-Bhoomi Pradeshe";
             } else {
-                status.innerText = "Location lookup failed.";
+                mountainRow = `${scrubVedicHydrology(geoState.mountain, 'peak')} Giri Sameepe`;
             }
-        } catch (err) { status.innerText = "API transmission drop."; }
-    }
 
-    function updateSankalpaUI() {
-        const isOutdoors = document.getElementById('outdoorToggle').checked;
-        const cLower = geoState.country.toLowerCase();
-        const sLower = geoState.state.toLowerCase();
-        
-        let macro = ""; // [Dweepe, Varshe, Khande, Meru]
-        let mountainPart = `${geoState.mountain} Giri Sameepe`;
-        let riverPart = `${geoState.river} Nadi Teere`;
-        let regionalDesha = `${geoState.state} Deshe`;
-
-        // LITURGICAL ARCHITECTURE MATRIX
-        if (geoState.country === "India") {
-            macro = "Jambu Dweepe, Bharata Varshe, Bharata Khande, Meroho Dakshina Digbhaage";
-            
-            // State Mapping Matrix
-            if (sLower.includes("andhra")) regionalDesha = "Andhra Deshe";
-            else if (sLower.includes("karnataka")) regionalDesha = "Karnataka Deshe";
-            else if (sLower.includes("tamil nadu")) regionalDesha = "Draavida Chola-Pandya Deshe";
-            else if (sLower.includes("telangana")) regionalDesha = "Telangana Trilinga Deshe";
-            else if (sLower.includes("maharashtra")) regionalDesha = "Maharashtra Deshe";
-            else if (sLower.includes("gujarat")) regionalDesha = "Gurjara Deshe";
-            else if (sLower.includes("kerala")) regionalDesha = "Keralaputra Bhargava Kshetra Deshe";
-            else if (sLower.includes("punjab")) regionalDesha = "Panchanada Deshe";
-            else if (sLower.includes("bihar")) regionalDesha = "Magadha Deshe";
-            else if (sLower.includes("assam")) regionalDesha = "Kaamarupa Deshe";
-            else if (sLower.includes("delhi")) regionalDesha = "Indraprastha Kurujangala Deshe";
-            else if (sLower.includes("uttar pradesh")) regionalDesha = "Aaryavartha Madhyadesha Kosala Deshe";
-            else if (sLower.includes("west bengal")) regionalDesha = "Vanga Deshe";
-
-            // River fallback logic for India
-            if (geoState.river === "Sthala") {
-                if (sLower.includes("karnataka") || sLower.includes("tamil nadu")) riverPart = "Kaveri Nadi Teere";
-                else if (sLower.includes("andhra") || sLower.includes("telangana")) riverPart = "Krishna-Godavari Nadi Pradeshe";
-                else if (sLower.includes("maharashtra")) riverPart = "Godavari Nadi Teere";
-                else riverPart = "Ganga-Yamunayoho Madhyadeshe";
+            // 3. Hydrology Row Assembly
+            const scrubbedRiver = scrubVedicHydrology(geoState.river, 'river');
+            let riverRow = "";
+            if (scrubbedRiver === "Sthala") {
+                riverRow = "Jala-Sanchaya Sameepe"; // Fallback for no river data
+            } else {
+                const suffix = scrubbedRiver.includes("Upadhaaraa") ? " Teere" :
+                    scrubbedRiver.includes("Sarovara") ? " Teere" :
+                        scrubbedRiver.includes("Kulyatraya") ? " Teere" : " Teere";
+                riverRow = `${scrubbedRiver}${suffix}`;
             }
-        } 
-        // GLOBAL TRAVEL MATRIX [Ref: Vedic Spatial Metadata Array]
-        else if (["thailand", "vietnam", "laos", "cambodia", "indonesia", "bali", "malaysia", "singapore", "philippines"].includes(cLower)) {
-            let khande = "Kaseru Khande";
-            let desha = geoState.country + " Deshe";
-            let dweepe = "Jambu Dweepe";
-            let varshe = "Harivarshe";
 
-            if (cLower === "thailand") { khande = "Shambhala Khande"; desha = "Syama Deshe"; }
-            else if (cLower === "vietnam") { khande = "Anga Khande"; }
-            else if (cLower === "laos") { khande = "Lava Khande"; }
-            else if (cLower === "cambodia") { khande = "Kamboja Khande"; }
-            else if (cLower === "malaysia" || cLower === "singapore") { dweepe = "Krauncha Dweepe"; varshe = "Malaya Varshe"; khande = cLower === "singapore" ? "Simhapuri Khande" : "Malaya Khande"; }
-            else if (cLower === "indonesia" || cLower === "bali") { khande = "Yava Dweepa Upakhande"; }
+            // 4. Final Liturgical Assembly
+            const suffixSettlementType = geoState.isVillage ? "Grame" : "Nagare";
+            const finalVenue = isOutdoors ? "Nootana Sthale" : "Shobhana Gruhe";
 
-            macro = `${dweepe}, ${varshe}, ${khande}, Meroho Agneya Digbhaage`;
-            regionalDesha = desha;
-            if (geoState.river === "Sthala") riverPart = (cLower === "indonesia" || cLower === "bali" || cLower === "philippines") ? "Samudra Upadweepe" : "Mekong-Chao Phraya Nadi Pradeshe";
-            if (geoState.mountain === "Sthala") mountainPart = (cLower === "indonesia" || cLower === "bali") ? "Hindoo Saagare" : "Prashantha Saagare";
-        }
-        else if (cLower === "australia" || cLower === "new zealand" || cLower === "fiji") {
-            let khande = cLower === "australia" ? "Aindra Khande" : "Maoriland Khande";
-            macro = `Pushkara Dweepe, Pushkara Varshe, ${khande}, Meroho Ati-Dakshina-Agneya Digbhaage`;
-            regionalDesha = geoState.country + " Deshe";
-            if (geoState.river === "Sthala") riverPart = "Dakshina Prashantha-Mahaasaagare";
-            if (geoState.mountain === "Sthala") mountainPart = "Sagara Parivruta Sthale";
-        }
-        else if (["usa", "canada", "mexico", "brazil", "peru", "argentina", "chile"].includes(cLower)) {
-            let varshe = ["usa", "canada"].includes(cLower) ? "Ramanaka Varshe" : "Plaksha Varshe";
-            macro = `Krauncha Dweepe, ${varshe}, Aindra Khande, Meroho Ati-Paschima Digbhaage`;
-            regionalDesha = geoState.country + " Deshe";
-            if (geoState.river === "Sthala") riverPart = (["brazil", "peru"].includes(cLower)) ? "Amazon Nadi Pradeshe" : "Mississippi Nadi Pradeshe";
-            if (geoState.mountain === "Sthala") mountainPart = "Atlaantika-Prashantha Madhyadeshe";
-        }
-        else if (cLower.includes("uk") || ["united kingdom", "france", "germany", "italy", "spain", "switzerland"].includes(cLower)) {
-            macro = "Plaksha Dweepe, Hiranmaya Varshe, Huna Khande, Meroho Vaayavya Digbhaage";
-            regionalDesha = geoState.country + " Deshe";
-            if (geoState.river === "Sthala") {
-                if (cLower.includes("uk")) riverPart = "Thames Nadi Pradeshe";
-                else if (cLower === "germany") riverPart = "Rhine Nadi Pradeshe";
-                else riverPart = "Danube Nadi Pradeshe";
-            }
-            if (geoState.mountain === "Sthala") mountainPart = "Atlaantika Mahaasaagare";
-        }
-        else if (["china", "japan", "korea", "taiwan"].includes(cLower)) {
-            let varshe = cLower === "china" ? "Kimpurusha Varshe" : "Ramyaka Varshe";
-            macro = `Jambu Dweepe, ${varshe}, China-Mukuta Khande, Meroho Poorva Digbhaage`;
-            regionalDesha = geoState.country + " Deshe";
-        }
-        else if (["uae", "saudi", "dubai", "egypt", "morocco", "south africa"].includes(cLower)) {
-            let dweepe = ["uae", "saudi", "dubai"].includes(cLower) ? "Jambu Dweepe" : "Kusha Dweepe";
-            let varshe = ["uae", "saudi", "dubai"].includes(cLower) ? "Ketumala Varshe" : "Kusha Varshe";
-            macro = `${dweepe}, ${varshe}, Arabasthana-Dakshina Khande, Meroho Paschima Digbhaage`;
-            regionalDesha = geoState.country + " Deshe";
-        }
-        else {
-            macro = "Krauncha Dweepe, Meroho Paschima Digbhaage";
-            regionalDesha = geoState.country + " Deshe";
+            const finalSanskrit =
+                `${macro} |\n` +
+                `${mountainRow} |\n` +
+                `${riverRow} |\n` +
+                `${regionalDesha} ${geoState.settlement} ${suffixSettlementType} ${finalVenue} ||`;
+
+            document.getElementById('sankalpaOutput').innerText = finalSanskrit;
+
+            // 5. Telugu Script Engine Execution
+            const teluguOutput = transliterateToTelugu(finalSanskrit);
+            document.getElementById('sankalpaTeluguOutput').innerText = teluguOutput;
         }
 
-        const suffixSettlementType = geoState.isVillage ? "Grame" : "Nagare";
-        const combinedCityString = `${regionalDesha} ${geoState.settlement} ${suffixSettlementType}`;
-        const finalVenueMarker = isOutdoors ? "Nootana Sthale" : "Shobhana Gruhe";
+        function copyToClipboard() {
+            const standard = document.getElementById('sankalpaOutput').innerText;
+            const telugu = document.getElementById('sankalpaTeluguOutput').innerText;
+            const isTeluguVisible = document.getElementById('teluguToggle').checked;
+            const txt = isTeluguVisible ? (standard + "\n\n" + telugu) : standard;
 
-        document.getElementById('sankalpaOutput').innerText = 
-            `${macro} |\n` +
-            `${mountainPart} |\n` +
-            `${riverPart} |\n` +
-            `${combinedCityString} ${finalVenueMarker} ||`;
-    }
-
-    function copyToClipboard() {
-        const txt = document.getElementById('sankalpaOutput').innerText;
-        navigator.clipboard.writeText(txt);
-        alert("Sanskrit text compiled and transferred to clipboard.");
-    }
-</script>
+            navigator.clipboard.writeText(txt);
+            alert("Liturgical array transferred to clipboard.");
+        }
+    </script>
 
 </body>
+
 </html>
