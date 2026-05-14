@@ -303,7 +303,7 @@
         status.innerText = "Querying regional mountain systems and rivers via Overpass HTTPS...";
         
         // 2. Switched Overpass to secure HTTPS interpretation engine
-        const overpassUrl = "overpass-api.de";
+        const overpassUrl = "https://overpass-api.de/api/interpreter";
         const queryQL = `[out:json][timeout:15];(node["waterway"="river"](around:15000,${lat},${lon});node["natural"="peak"](around:15000,${lat},${lon}););out tags;`;
         
         const overpassResponse = await fetch(overpassUrl, {
