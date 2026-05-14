@@ -220,25 +220,45 @@
     </div>
 
     <!-- Panel 2: Zero-Connectivity Emergency Manual Matrix -->
+    <!-- OPTION B HAS BEEN COMMENTED OUT TO REFINE AND UNCLUTTER VISUAL USER EXPERIENCE
     <div class="panel-box" style="background: rgba(255,107,53,0.02); border-color: rgba(255,107,53,0.15);">
-        <div style="font-size:0.8rem; color:var(--accent-color); margin-bottom:6px; font-weight:600;">OPTION B: Absolute Offline Manual Override</div>
-        <div class="grid-3">
-            <select id="offCountry" onchange="handleOfflineChange()">
-                <option value="India">India</option>
-                <option value="Global">Outside India</option>
-            </select>
-            <input type="text" id="offState" placeholder="State/Desha" value="Karnataka" oninput="handleOfflineChange()">
-            <input type="text" id="offCity" placeholder="City/Village" value="Bengaluru" oninput="handleOfflineChange()">
+        <div style="font-size:0.8rem; color:var(--accent-color); margin-bottom:12px; font-weight:600;">OPTION B: Absolute Offline Manual Override</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="input-label" for="offCountry">Region Grid</label>
+                <select id="offCountry" onchange="handleOfflineChange()">
+                    <option value="India">India (Jambu)</option>
+                    <option value="Global">Outside India</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="input-label" for="offState">State (Desha)</label>
+                <input type="text" id="offState" value="Karnataka" oninput="handleOfflineChange()">
+            </div>
+            <div class="form-group">
+                <label class="input-label" for="offCity">City / Settlement</label>
+                <input type="text" id="offCity" value="Bengaluru" oninput="handleOfflineChange()">
+            </div>
         </div>
-        <div class="grid-3" style="margin-top: 4px; margin-bottom: 0;">
-            <input type="text" id="offMountain" placeholder="Mountain/Giri" value="NandiVaraha" oninput="handleOfflineChange()">
-            <input type="text" id="offRiver" placeholder="River/Nadi" value="Arkavati" oninput="handleOfflineChange()">
-            <select id="offType" onchange="handleOfflineChange()">
-                <option value="Nagare">Nagare (City)</option>
-                <option value="Grame">Grame (Village)</option>
-            </select>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="input-label" for="offMountain">Mountain (Giri)</label>
+                <input type="text" id="offMountain" value="NandiVaraha" oninput="handleOfflineChange()">
+            </div>
+            <div class="form-group">
+                <label class="input-label" for="offRiver">River (Nadi)</label>
+                <input type="text" id="offRiver" value="Arkavati" oninput="handleOfflineChange()">
+            </div>
+            <div class="form-group">
+                <label class="input-label" for="offType">Domain Type</label>
+                <select id="offType" onchange="handleOfflineChange()">
+                    <option value="Nagare">Nagare (City)</option>
+                    <option value="Grame">Grame (Village)</option>
+                </select>
+            </div>
         </div>
     </div>
+    -->
 
     <div class="section" id="outputSection">
         <div class="section-title">Active Sanskrit Liturgical Code</div>
@@ -401,16 +421,140 @@
 
     function updateSankalpaUI() {
         const isOutdoors = document.getElementById('outdoorToggle').checked;
+        const cLower = geoState.country.toLowerCase();
+        const sLower = geoState.state.toLowerCase();
         
         let macroCoordinates = "";
         let regionalDesha = `${geoState.state} Deshe`;
 
         if (geoState.country === "India") {
             macroCoordinates = "Jambu Dweepe, Bharata Varshe, Bharata Khande, Meroho Dakshina Digbhaage";
-            if (geoState.state.toLowerCase().includes("karnataka")) regionalDesha = "Karnataka Deshe";
-            if (geoState.state.toLowerCase().includes("andhra")) regionalDesha = "Andhra Deshe";
-        } else {
-            macroCoordinates = "Krouncha Dweepe, Meroho Paschima Digbhaage";
+            if (sLower.includes("andhra")) {
+            regionalDesha = "Andhra Deshe";
+            } else if (sLower.includes("arunachal")) {
+                regionalDesha = "Arunachal Deshe";
+            } else if (sLower.includes("assam")) {
+                regionalDesha = "Kaamarupa Deshe"; // Ancient scriptural name for Assam
+            } else if (sLower.includes("bihar")) {
+                regionalDesha = "Magadha Deshe"; // Ancestral Puranic seat for Bihar
+            } else if (sLower.includes("chhattisgarh")) {
+                regionalDesha = "Dandakaaranya Deshe"; // Historical epic reference region
+            } else if (sLower.includes("goa")) {
+                regionalDesha = "Parashurama Kshetra Gomantaka Deshe";
+            } else if (sLower.includes("gujarat")) {
+                regionalDesha = "Gurjara Deshe";
+            } else if (sLower.includes("haryana")) {
+                regionalDesha = "Kuru Deshe"; // Epic Vedic hub of the Kuru-Panchala kingdom
+            } else if (sLower.includes("himachal")) {
+                regionalDesha = "Himaachala Deshe";
+            } else if (sLower.includes("jharkhand")) {
+                regionalDesha = "Vanaanchala Pundra Deshe";
+            } else if (sLower.includes("karnataka")) {
+                regionalDesha = "Karnataka Deshe";
+            } else if (sLower.includes("kerala")) {
+                regionalDesha = "Keralaputra Bhargava Kshetra Deshe";
+            } else if (sLower.includes("madhya pradesh")) {
+                regionalDesha = "Avanti Maalava Deshe";
+            } else if (sLower.includes("maharashtra")) {
+                regionalDesha = "Maharashtra Deshe";
+            } else if (sLower.includes("manipur")) {
+                regionalDesha = "Manieepura Deshe";
+            } else if (sLower.includes("meghalaya")) {
+                regionalDesha = "Meghaalaya Deshe";
+            } else if (sLower.includes("mizoram")) {
+                regionalDesha = "Mizoraama Deshe";
+            } else if (sLower.includes("nagaland")) {
+                regionalDesha = "Naagabhoomi Deshe";
+            } else if (sLower.includes("odisha") || sLower.includes("orissa")) {
+                regionalDesha = "Utkala Kalinga Deshe";
+            } else if (sLower.includes("punjab")) {
+                regionalDesha = "Panchanada Deshe"; // Sanskrit literal name: "Land of 5 Rivers"
+            } else if (sLower.includes("rajasthan")) {
+                regionalDesha = "Marusthala Raajapootana Deshe";
+            } else if (sLower.includes("sikkim")) {
+                regionalDesha = "Sikkima Indrakila Deshe";
+            } else if (sLower.includes("tamil nadu")) {
+                regionalDesha = "Draavida Chola-Pandya Deshe";
+            } else if (sLower.includes("telangana")) {
+                regionalDesha = "Telangana Trilinga Deshe";
+            } else if (sLower.includes("tripura")) {
+                regionalDesha = "Tripura Kirata Deshe";
+            } else if (sLower.includes("uttar pradesh")) {
+                regionalDesha = "Aaryavartha Madhyadesha Kosala Deshe";
+            } else if (sLower.includes("uttarakhand")) {
+                regionalDesha = "Devabhoomi Kedaarakhanda Deshe";
+            } else if (sLower.includes("west bengal") || sLower.includes("bengal")) {
+                regionalDesha = "Vanga Deshe";
+    
+            // --- 8 UNION TERRITORIES MAPPING MATRIX ---
+            } else if (sLower.includes("andaman") || sLower.includes("nicobar")) {
+                regionalDesha = "Samudra Marakata Dweepa Deshe";
+            } else if (sLower.includes("chandigarh")) {
+                regionalDesha = "Chandigarha Brahmavartha Deshe";
+            } else if (sLower.includes("dadra") || sLower.includes("daman") || sLower.includes("diu")) {
+                regionalDesha = "Suryavamsha Maandavya Kshetra Deshe";
+            } else if (sLower.includes("delhi") || sLower.includes("nct")) {
+                regionalDesha = "Indraprastha Kurujangala Deshe"; // Epic Vedic title for Delhi
+            } else if (sLower.includes("jammu") || sLower.includes("kashmir")) {
+                regionalDesha = "Kaashmeera Kashyapa Bhoomi Deshe";
+            } else if (sLower.includes("ladakh")) {
+                regionalDesha = "Ladaakha Sheethamarusthala Deshe";
+            } else if (sLower.includes("lakshadweep")) {
+                regionalDesha = "Lakshadweepa Sagara Paarshve Deshe";
+            } else if (sLower.includes("puducherry") || sLower.includes("pondicherry")) {
+                regionalDesha = "Puducheree Agastyaashrama Deshe";
+            }
+        } else if (cLower === "thailand" || cLower === "vietnam" || cLower === "indonesia" || cLower === "bali" || cLower === "malaysia" || cLower === "philippines" || cLower === "cambodia" || cLower === "laos") {
+            macroCoordinates = "Jambu Dweepe, Meroho Aagneya Digbhaage";
+            
+            // Dynamic element alignment based on Indochina vs Island geography
+            if (cLower === "indonesia" || cLower === "bali" || cLower === "philippines") {
+                riverString = "Samudra Upadweepe";
+                mountainString = "Hindoo Saagare";
+            } else {
+                riverString = "Mekong-Chao Phraya Nadi Pradeshe";
+                mountainString = "Prashantha Saagare";
+            }
+            regionalDesha = `${geoState.country} Deshe`;
+        } 
+        // 2. Australia & New Zealand Grid Routing Loop
+        else if (cLower === "australia" || cLower === "new zealand" || cLower === "fiji") {
+            macroCoordinates = "Pushkara Khande, Meroho Ati-Dakshina-Aagneya Digbhaage";
+            mountainString = "Sagara Parivruta Sthale";
+            riverString = "Dakshina Prashantha-Mahaasaagare";
+            regionalDesha = `${geoState.country} Deshe`;
+        } 
+        // 3. European Countries & United Kingdom Grid Routing Loop
+        else if (cLower === "united kingdom" || cLower === "uk" || cLower === "germany" || cLower === "france" || cLower === "switzerland" || cLower === "italy" || cLower === "spain" || cLower === "austria" || cLower === "netherlands") {
+            macroCoordinates = "Plaksha Dweepe, Ioropa Varshe, Meroho Vaayavya Digbhaage";
+            
+            // Localized river systems mapping
+            if (cLower === "united kingdom" || cLower === "uk") {
+                riverString = "Thames Nadi Pradeshe";
+            } else if (cLower === "germany" || cLower === "france" || cLower === "switzerland") {
+                riverString = "Rhine Nadi Pradeshe";
+            } else {
+                riverString = "Danube Nadi Pradeshe";
+            }
+            mountainString = "Atlaantika Mahaasaagare";
+            regionalDesha = `${geoState.country} Deshe`;
+        } 
+        // 4. North & South America Grid Routing Loop
+        else if (cLower === "usa" || cLower === "united states" || cLower === "canada" || cLower === "mexico" || cLower === "brazil" || cLower === "argentina" || cLower === "colombia") {
+            macroCoordinates = "Krauncha Dweepe, Meroho Ati-Paschima Digbhaage";
+            mountainString = "Atlaantika-Prashantha Madhyadeshe";
+            
+            if (cLower === "brazil" || cLower === "argentina" || cLower === "colombia") {
+                riverString = "Amazon Nadi Pradeshe";
+            } else {
+                riverString = "Mississippi Nadi Pradeshe";
+            }
+            regionalDesha = `${geoState.country} Deshe`;
+        } 
+        // Global Global Baseline Fallback Grid Routing Loop
+        else {
+            macroCoordinates = "Krauncha Dweepe, Meroho Paschima Digbhaage";
+            regionalDesha = `${geoState.country} Deshe`;
         }
 
         const mountainPart = `${geoState.mountain} Giri Sameepe`;
